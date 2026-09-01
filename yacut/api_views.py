@@ -19,10 +19,10 @@ def validate_custom_id(custom_id):
         return None, msg
 
     if len(custom_id) > 16:
-        msg = 'Длина custom_id не должна превышать 16 символов'
+        msg = 'Указано недопустимое имя для короткой ссылки'
         return None, msg
 
-    if not custom_id.isalnum():
+    if not custom_id.isascii() or not custom_id.isalnum():
         msg = 'Указано недопустимое имя для короткой ссылки'
         return None, msg
 
