@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request
 from sqlalchemy.exc import IntegrityError
 
 from . import db
-from .error_handlers import APIError
 from .models import URLMap
 from .utils import generate_unique_short_id, is_forbidden_id
 
@@ -15,24 +14,25 @@ def create_short_link():
     data = request.get_json()
 
     if not data or 'url' not in data:
-        raise APIError('Отсутствует поле "url"', 400)
+        msg = 'Отсутствует поле "url"'
+        return jsonify({'message': msg}), 400
 
     original = data['url']
     custom_id = data.get('custom_id')
 
-    if custom_id:
+    if custom_id is not None:
         if len(custom_id) > 16:
-            error_msg = 'Длина custom_id не должна превышать 16 символов'
-            raise APIError(error_msg, 400)
+            msg = 'Длина custom_id не должна превышать 16 символов'
+            return jsonify({'message': msg}), 400
 
         if is_forbidden_id(custom_id):
-            error_msg = 'Предложенный вариант короткой ссылки уже существует.'
-            raise APIError(error_msg, 400)
+            msg = 'Предложенный вариант короткой ссылки уже существует.'
+            return jsonify({'message': msg}), 400
 
         existing = URLMap.query.filter_by(short=custom_id).first()
         if existing:
-            error_msg = 'Предложенный вариант короткой ссылки уже существует.'
-            raise APIError(error_msg, 400)
+            msg = 'Предложенный вариант короткой ссылки уже существует.'
+            return jsonify({'message': msg}), 400
 
         short_id = custom_id
     else:
@@ -51,12 +51,13 @@ def create_short_link():
             db.session.add(url_map)
             db.session.commit()
         else:
-            error_msg = 'Предложенный вариант короткой ссылки уже существует.'
-            raise APIError(error_msg, 400)
+            msg = 'Предложенный вариант короткой ссылки уже существует.'
+            return jsonify({'message': msg}), 400
 
     return jsonify({
         'url': original,
-        'short_link': request.host_url + short_id
+        'short_link': request.host_url + short_id,
+        'short_id': short_id
     }), 201
 
 
@@ -65,6 +66,7 @@ def get_original_link(short_id):
     """Получить оригинальную ссылку по короткому идентификатору."""
     url_map = URLMap.query.filter_by(short=short_id).first()
     if not url_map:
-        raise APIError('Указанный id не найден', 404)
+        msg = 'Указанный id не найден'
+        return jsonify({'message': msg}), 404
 
     return jsonify({'url': url_map.original}), 200
