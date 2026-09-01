@@ -39,3 +39,5 @@ def create_app() -> Flask:
     error_handlers.register_error_handlers(app)
 
     return app
+
+app = create_app()
