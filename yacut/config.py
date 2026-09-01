@@ -19,4 +19,3 @@ class Config:
         '0123456789'
     )
     FORBIDDEN_IDS = {'files'}
-    
