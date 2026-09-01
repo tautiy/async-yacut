@@ -1,6 +1,4 @@
 import asyncio
-import os
-import urllib.parse
 
 import aiohttp
 from flask import current_app, request

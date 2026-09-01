@@ -1,5 +1,3 @@
-import urllib.parse
-
 import requests
 from flask import Blueprint, redirect, render_template, request, Response
 from sqlalchemy.exc import IntegrityError

@@ -1,6 +1,5 @@
 import secrets
 
-from . import db
 from .constants import SHORT_ID_ALPHABET, DEFAULT_SHORT_ID_LENGTH
 from .models import URLMap
 
