@@ -13,8 +13,12 @@ def create_short_link():
     """Создать короткую ссылку через API."""
     data = request.get_json()
 
-    if not data or 'url' not in data:
-        msg = 'Отсутствует поле "url"'
+    if not data:
+        msg = 'Отсутствует тело запроса'
+        return jsonify({'message': msg}), 400
+
+    if 'url' not in data or not data['url']:
+        msg = '"url" является обязательным полем!'
         return jsonify({'message': msg}), 400
 
     original = data['url']
@@ -26,7 +30,7 @@ def create_short_link():
             return jsonify({'message': msg}), 400
 
         if not custom_id.isalnum():
-            msg = 'Некорректный короткий идентификатор'
+            msg = 'Указано недопустимое имя для короткой ссылки'
             return jsonify({'message': msg}), 400
 
         if is_forbidden_id(custom_id):
