@@ -20,9 +20,13 @@ def create_short_link():
     original = data['url']
     custom_id = data.get('custom_id')
 
-    if custom_id is not None:
+    if custom_id is not None and custom_id != '':
         if len(custom_id) > 16:
             msg = 'Длина custom_id не должна превышать 16 символов'
+            return jsonify({'message': msg}), 400
+
+        if not custom_id.isalnum():
+            msg = 'Некорректный короткий идентификатор'
             return jsonify({'message': msg}), 400
 
         if is_forbidden_id(custom_id):
@@ -57,7 +61,6 @@ def create_short_link():
     return jsonify({
         'url': original,
         'short_link': request.host_url + short_id,
-        'short_id': short_id
     }), 201
 
 
