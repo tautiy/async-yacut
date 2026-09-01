@@ -16,8 +16,14 @@ csrf = CSRFProtect()
 
 def create_app() -> Flask:
     """Создать и настроить экземпляр Flask-приложения."""
-    static_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static')
-    app = Flask(__name__, static_folder=static_folder, static_url_path='/static')
+    static_folder = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), 'static'
+    )
+    app = Flask(
+        __name__,
+        static_folder=static_folder,
+        static_url_path='/static'
+    )
 
     app.config.from_object('yacut.config.Config')
 
