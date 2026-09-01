@@ -5,6 +5,7 @@ from . import db
 from .models import URLMap
 from .utils import generate_unique_short_id, is_forbidden_id
 
+
 blueprint = Blueprint('api', __name__, url_prefix='/api')
 
 
