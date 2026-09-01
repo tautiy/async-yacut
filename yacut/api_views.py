@@ -13,6 +13,10 @@ def validate_custom_id(custom_id):
     if custom_id is None or custom_id == '':
         return None, None
 
+    if not isinstance(custom_id, str):
+        msg = 'Указано недопустимое имя для короткой ссылки'
+        return None, msg
+
     if len(custom_id) > 16:
         msg = 'Длина custom_id не должна превышать 16 символов'
         return None, msg
@@ -56,7 +60,7 @@ def save_url_map(original, short_id, custom_id):
 @blueprint.route('/id/', methods=['POST'])
 def create_short_link():
     """Создать короткую ссылку через API."""
-    data = request.get_json()
+    data = request.get_json(silent=True)
 
     if not data:
         msg = 'Отсутствует тело запроса'
