@@ -1,4 +1,5 @@
 import asyncio
+from http import HTTPStatus
 
 import aiohttp
 from flask import current_app, request
@@ -19,7 +20,7 @@ async def get_upload_url(session, file_path):
     params = {'path': file_path, 'overwrite': 'true'}
 
     async with session.get(url, headers=headers, params=params) as response:
-        if response.status != 200:
+        if response.status != HTTPStatus.OK:
             error_text = await response.text()
             raise Exception(
                 f'Ошибка получения URL: {response.status} - {error_text}'
@@ -36,7 +37,7 @@ async def upload_file_to_disk(session, file, file_path):
     file_data = file.read()
 
     async with session.put(upload_url, data=file_data) as response:
-        if response.status != 201:
+        if response.status != HTTPStatus.CREATED:
             raise Exception(f'Ошибка загрузки: {response.status}')
 
 
@@ -51,7 +52,7 @@ async def get_download_url(session, file_path):
     params = {'path': file_path}
 
     async with session.get(url, headers=headers, params=params) as response:
-        if response.status != 200:
+        if response.status != HTTPStatus.OK:
             error_text = await response.text()
             raise Exception(
                 f'Ошибка получения ссылки: {response.status} - {error_text}'

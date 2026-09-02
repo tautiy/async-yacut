@@ -6,23 +6,11 @@ from .config import Config
 from .models import URLMap
 
 
-def generate_unique_short_id() -> str:
+def generate_unique_short_id(length: int = None) -> str:
     """Сгенерировать уникальный короткий идентификатор."""
-    max_attempts = 100
-    for _ in range(max_attempts):
-        short_id = ''.join(
-            secrets.choice(Config.SHORT_ID_ALPHABET)
-            for _ in range(Config.DEFAULT_SHORT_ID_LENGTH)
-        )
-        if not URLMap.query.filter_by(short=short_id).first():
-            return short_id
-    return generate_unique_short_id_with_length(
-        Config.DEFAULT_SHORT_ID_LENGTH + 1
-    )
+    if length is None:
+        length = Config.DEFAULT_SHORT_ID_LENGTH
 
-
-def generate_unique_short_id_with_length(length: int) -> str:
-    """Сгенерировать уникальный короткий идентификатор заданной длины."""
     max_attempts = 100
     for _ in range(max_attempts):
         short_id = ''.join(
@@ -31,7 +19,7 @@ def generate_unique_short_id_with_length(length: int) -> str:
         )
         if not URLMap.query.filter_by(short=short_id).first():
             return short_id
-    return generate_unique_short_id_with_length(length + 1)
+    return generate_unique_short_id(length + 1)
 
 
 def is_forbidden_id(short_id: str) -> bool:

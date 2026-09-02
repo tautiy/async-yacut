@@ -14,7 +14,7 @@ class APIError(Exception):
 def register_error_handlers(app):
     """Зарегистрировать обработчики ошибок."""
 
-    @app.errorhandler(404)
+    @app.errorhandler(HTTPStatus.NOT_FOUND)
     def page_not_found(error):
         """Обработчик ошибки 404."""
         return (
@@ -22,7 +22,7 @@ def register_error_handlers(app):
             HTTPStatus.NOT_FOUND
         )
 
-    @app.errorhandler(500)
+    @app.errorhandler(HTTPStatus.INTERNAL_SERVER_ERROR)
     def internal_server_error(error):
         """Обработчик ошибки 500."""
         return (
@@ -30,7 +30,7 @@ def register_error_handlers(app):
             HTTPStatus.INTERNAL_SERVER_ERROR
         )
 
-    @app.errorhandler(400)
+    @app.errorhandler(HTTPStatus.BAD_REQUEST)
     def bad_request(error):
         """Обработчик ошибки 400."""
         return (
