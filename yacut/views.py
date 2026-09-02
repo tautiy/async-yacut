@@ -1,12 +1,16 @@
 import requests
 from flask import Blueprint, redirect, render_template, request, Response
-from sqlalchemy.exc import IntegrityError
+from http import HTTPStatus
 
-from . import db
 from .forms import FileUploadForm, URLForm
 from .models import URLMap
-from .utils import generate_unique_short_id, is_forbidden_id
+from .utils import (
+    generate_unique_short_id,
+    is_forbidden_id,
+    save_url_map
+)
 from .yandex_disk import get_download_url_sync, upload_files
+
 
 blueprint = Blueprint('views', __name__)
 
@@ -27,28 +31,14 @@ def index():
                 form.custom_id.errors.append(msg)
                 return render_template('index.html', form=form)
 
-            existing = URLMap.query.filter_by(short=custom_id).first()
-            if existing:
-                msg = 'Предложенный вариант короткой ссылки уже существует.'
-                form.custom_id.errors.append(msg)
-                return render_template('index.html', form=form)
-            short_id = custom_id
-        else:
-            short_id = generate_unique_short_id()
+        short_id = custom_id or generate_unique_short_id()
 
-        url_map = URLMap(original=original, short=short_id, is_file=False)
-        try:
-            db.session.add(url_map)
-            db.session.commit()
-            short_url = request.host_url + short_id
-        except IntegrityError:
-            db.session.rollback()
-            if not custom_id:
-                short_id = generate_unique_short_id()
-                new_url_map = URLMap(original=original, short=short_id)
-                db.session.add(new_url_map)
-                db.session.commit()
-                short_url = request.host_url + short_id
+        url_map, error = save_url_map(original, short_id, custom_id)
+        if error:
+            form.custom_id.errors.append(error)
+            return render_template('index.html', form=form)
+
+        short_url = request.host_url + url_map.short
 
     return render_template('index.html', form=form, short_url=short_url)
 
@@ -83,7 +73,7 @@ def redirect_to_original(short_id):
 
             response = Response(
                 file_response.iter_content(chunk_size=8192),
-                status=200,
+                status=HTTPStatus.OK,
                 content_type=file_response.headers.get('Content-Type')
             )
 
@@ -94,6 +84,9 @@ def redirect_to_original(short_id):
             return response
 
         except Exception as e:
-            return render_template('error.html', error=str(e)), 500
+            return (
+                render_template('error.html', error=str(e)),
+                HTTPStatus.INTERNAL_SERVER_ERROR
+            )
 
     return redirect(url_map.original)

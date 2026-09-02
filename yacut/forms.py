@@ -3,7 +3,7 @@ from flask_wtf.file import FileRequired, MultipleFileField
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Regexp
 
-from .constants import MAX_CUSTOM_ID_LENGTH
+from .config import Config
 
 
 class URLForm(FlaskForm):
@@ -19,7 +19,7 @@ class URLForm(FlaskForm):
     custom_id = StringField(
         'Ваш вариант короткой ссылки',
         validators=[
-            Length(0, MAX_CUSTOM_ID_LENGTH),
+            Length(0, Config.MAX_CUSTOM_ID_LENGTH),
             Regexp(
                 r'^[A-Za-z0-9]*$',
                 message='Допустимы только латиница и цифры'
